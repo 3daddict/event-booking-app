@@ -1,21 +1,23 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const graphqlHttp = require('express-graphql');
-const { buildSchema } = require('graphql');
+const express = require("express");
+const bodyParser = require("body-parser");
+const graphqlHttp = require("express-graphql");
+const { buildSchema } = require("graphql");
 const port = process.env.PORT || 3000;
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use('/graphql', graphqlHttp({
+app.use(
+  "/graphql",
+  graphqlHttp({
     schema: buildSchema(`
         type RootQuery {
-
+            events: [String!]!
         }
 
         type RootMutation {
-
+            createEvent(name: String): String
         }
 
         schema {
@@ -24,8 +26,16 @@ app.use('/graphql', graphqlHttp({
         }
     `),
     rootValue: {
-
+      events: () => {
+        return ["Cooking", "Sailing", "Programming"];
+      },
+      createEvent: args => {
+        const eventName = args.name;
+        return eventName;
+      },
+      graphiql: true
     }
-}));
+  })
+);
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));
